@@ -1,7 +1,4 @@
 function MenuCard({ item, onEdit, onDelete }) {
-    const { hasEditPermission } = useAuth();
-    const canEdit = hasEditPermission('menu');
-
     return React.createElement('div', {
         className: 'card flex flex-col',
         'data-name': 'menu-card'
@@ -24,7 +21,7 @@ function MenuCard({ item, onEdit, onDelete }) {
                 'data-name': 'menu-item-price'
             }, `$${item.price.toFixed(2)}`)
         ),
-        canEdit && React.createElement('div', {
+        React.createElement('div', {
             className: 'flex gap-2 mt-auto'
         },
             React.createElement(Button, {
