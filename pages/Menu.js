@@ -2,6 +2,8 @@ function Menu() {
     const [menuItems, setMenuItems] = React.useState([]);
     const [selectedItem, setSelectedItem] = React.useState(null);
     const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const { hasEditPermission } = useAuth();
+    const canEdit = hasEditPermission('menu');
 
     React.useEffect(() => {
         try {
@@ -17,6 +19,7 @@ function Menu() {
 
     const handleCreateItem = async (itemData) => {
         try {
+            if (!canEdit) return;
             const newItem = await insert('menuItems', itemData);
             setMenuItems([...menuItems, newItem]);
             setIsModalOpen(false);
@@ -27,6 +30,7 @@ function Menu() {
 
     const handleEditItem = async (itemData) => {
         try {
+            if (!canEdit) return;
             await update('menuItems', itemData.id, itemData);
             setMenuItems(menuItems.map(item =>
                 item.id === itemData.id ? itemData : item
@@ -39,6 +43,7 @@ function Menu() {
 
     const handleDeleteItem = async (itemId) => {
         try {
+            if (!canEdit) return;
             await remove('menuItems', itemId);
             setMenuItems(menuItems.filter(item => item.id !== itemId));
         } catch (error) {
@@ -56,20 +61,20 @@ function Menu() {
             React.createElement('h2', {
                 className: 'text-2xl font-bold'
             }, 'Menu Items'),
-            React.createElement(Button, {
+            canEdit && React.createElement(Button, {
                 onClick: () => setIsModalOpen(true),
                 'data-name': 'add-menu-item-button'
             }, 'Add Item')
         ),
         React.createElement(MenuGrid, {
             items: menuItems,
-            onEdit: (item) => {
+            onEdit: canEdit ? (item) => {
                 setSelectedItem(item);
                 setIsModalOpen(true);
-            },
-            onDelete: handleDeleteItem
+            } : null,
+            onDelete: canEdit ? handleDeleteItem : null
         }),
-        React.createElement(Modal, {
+        isModalOpen && React.createElement(Modal, {
             isOpen: isModalOpen,
             onClose: () => {
                 setIsModalOpen(false);
@@ -80,6 +85,7 @@ function Menu() {
             React.createElement('form', {
                 onSubmit: async (e) => {
                     e.preventDefault();
+                    if (!canEdit) return;
                     const formData = new FormData(e.target);
                     const itemData = {
                         name: formData.get('name'),

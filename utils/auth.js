@@ -35,6 +35,25 @@ function AuthProvider({ children }) {
         }
     };
 
+    const hasPermission = (permission) => {
+        try {
+            if (!user) return false;
+            if (user.role === 'admin' || user.permissions.includes('all')) return true;
+            return user.permissions.includes(permission);
+        } catch (error) {
+            reportError(error);
+            return false;
+        }
+    };
+
+    const hasViewPermission = (module) => {
+        return hasPermission(`${module}.view`);
+    };
+
+    const hasEditPermission = (module) => {
+        return hasPermission(`${module}.edit`);
+    };
+
     const createUser = async (userData) => {
         try {
             const users = JSON.parse(localStorage.getItem('users')) || [];
@@ -60,7 +79,6 @@ function AuthProvider({ children }) {
             );
             localStorage.setItem('users', JSON.stringify(updatedUsers));
             
-            // Update current user if it's the same user
             if (user && user.id === userId) {
                 const updatedUser = updatedUsers.find(u => u.id === userId);
                 setUser(updatedUser);
@@ -94,31 +112,8 @@ function AuthProvider({ children }) {
         }
     };
 
-    const checkPermission = (permission) => {
-        try {
-            if (!user) return false;
-            if (user.role === 'admin') return true;
-            return user.permissions.includes(permission);
-        } catch (error) {
-            reportError(error);
-            return false;
-        }
-    };
-
-    const hasAccess = (requiredPermission) => {
-        try {
-            if (!user) return false;
-            if (user.role === 'admin') return true;
-            return user.permissions.includes(requiredPermission);
-        } catch (error) {
-            reportError(error);
-            return false;
-        }
-    };
-
     React.useEffect(() => {
         try {
-            // Initialize default admin user if no users exist
             const users = JSON.parse(localStorage.getItem('users')) || [];
             if (users.length === 0) {
                 const defaultAdmin = {
@@ -131,7 +126,6 @@ function AuthProvider({ children }) {
                 localStorage.setItem('users', JSON.stringify([defaultAdmin]));
             }
 
-            // Check for stored session
             const storedUser = localStorage.getItem('currentUser');
             if (storedUser) {
                 setUser(JSON.parse(storedUser));
@@ -147,9 +141,10 @@ function AuthProvider({ children }) {
         value: { 
             user, 
             login, 
-            logout, 
-            checkPermission,
-            hasAccess,
+            logout,
+            hasPermission,
+            hasViewPermission,
+            hasEditPermission,
             loading,
             createUser,
             updateUser,
