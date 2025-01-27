@@ -35,12 +35,32 @@ function AuthProvider({ children }) {
         }
     };
 
+    const hasPermission = (permission) => {
+        try {
+            if (!user) return false;
+            if (user.role === 'admin' || user.permissions.includes('all')) return true;
+            return user.permissions.includes(permission);
+        } catch (error) {
+            reportError(error);
+            return false;
+        }
+    };
+
+    const hasViewPermission = (module) => {
+        return hasPermission(`${module}.view`);
+    };
+
+    const hasEditPermission = (module) => {
+        return hasPermission(`${module}.edit`);
+    };
+
     const createUser = async (userData) => {
         try {
             const users = JSON.parse(localStorage.getItem('users')) || [];
             const newUser = {
                 id: users.length + 1,
-                ...userData
+                ...userData,
+                permissions: userData.permissions || []
             };
             users.push(newUser);
             localStorage.setItem('users', JSON.stringify(users));
@@ -58,6 +78,13 @@ function AuthProvider({ children }) {
                 user.id === userId ? { ...user, ...userData } : user
             );
             localStorage.setItem('users', JSON.stringify(updatedUsers));
+            
+            if (user && user.id === userId) {
+                const updatedUser = updatedUsers.find(u => u.id === userId);
+                setUser(updatedUser);
+                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            }
+            
             return updatedUsers.find(u => u.id === userId);
         } catch (error) {
             reportError(error);
@@ -85,32 +112,20 @@ function AuthProvider({ children }) {
         }
     };
 
-    const checkPermission = (permission) => {
-        try {
-            if (!user) return false;
-            if (user.role === 'admin') return true;
-            return user.permissions.includes(permission);
-        } catch (error) {
-            reportError(error);
-            return false;
-        }
-    };
-
     React.useEffect(() => {
         try {
-            // Initialize default admin user if no users exist
             const users = JSON.parse(localStorage.getItem('users')) || [];
             if (users.length === 0) {
-                localStorage.setItem('users', JSON.stringify([{
+                const defaultAdmin = {
                     id: 1,
                     username: 'admin',
                     password: 'admin123',
                     role: 'admin',
                     permissions: ['all']
-                }]));
+                };
+                localStorage.setItem('users', JSON.stringify([defaultAdmin]));
             }
 
-            // Check for stored session
             const storedUser = localStorage.getItem('currentUser');
             if (storedUser) {
                 setUser(JSON.parse(storedUser));
@@ -126,8 +141,10 @@ function AuthProvider({ children }) {
         value: { 
             user, 
             login, 
-            logout, 
-            checkPermission, 
+            logout,
+            hasPermission,
+            hasViewPermission,
+            hasEditPermission,
             loading,
             createUser,
             updateUser,

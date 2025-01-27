@@ -1,13 +1,56 @@
 function Sidebar({ currentPage, onPageChange }) {
+    const { t } = useTranslation();
+    const { checkPermission, user } = useAuth();
+
     const menuItems = [
-        { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-home' },
-        { id: 'tables', label: 'Tables', icon: 'fas fa-chair' },
-        { id: 'rooms', label: 'Rooms', icon: 'fas fa-bed' },
-        { id: 'orders', label: 'Orders', icon: 'fas fa-receipt' },
-        { id: 'menu', label: 'Menu', icon: 'fas fa-utensils' },
-        { id: 'reports', label: 'Reports', icon: 'fas fa-chart-bar' },
-        { id: 'settings', label: 'Settings', icon: 'fas fa-cog' }
+        { 
+            id: 'dashboard', 
+            label: t('dashboard'), 
+            icon: 'fas fa-home',
+            permission: 'dashboard.view' 
+        },
+        { 
+            id: 'tables', 
+            label: t('tables'), 
+            icon: 'fas fa-chair',
+            permission: 'tables.view'
+        },
+        { 
+            id: 'rooms', 
+            label: t('rooms'), 
+            icon: 'fas fa-bed',
+            permission: 'rooms.view'
+        },
+        { 
+            id: 'orders', 
+            label: t('orders'), 
+            icon: 'fas fa-receipt',
+            permission: 'orders.view'
+        },
+        { 
+            id: 'menu', 
+            label: t('menu'), 
+            icon: 'fas fa-utensils',
+            permission: 'menu.view'
+        },
+        { 
+            id: 'reports', 
+            label: t('reports'), 
+            icon: 'fas fa-chart-bar',
+            permission: 'reports.view'
+        },
+        { 
+            id: 'settings', 
+            label: t('settings'), 
+            icon: 'fas fa-cog',
+            permission: 'settings.view'
+        }
     ];
+
+    const filteredMenuItems = menuItems.filter(item => {
+        if (user.role === 'admin') return true;
+        return user.permissions.includes(item.permission);
+    });
 
     return React.createElement('div', {
         className: 'h-full flex flex-col',
@@ -19,13 +62,13 @@ function Sidebar({ currentPage, onPageChange }) {
         },
             React.createElement('h1', {
                 className: 'text-xl font-bold text-glow'
-            }, 'Hotel & Restaurant')
+            }, t('hotelAndRestaurant'))
         ),
         React.createElement('nav', {
             className: 'flex-1 overflow-y-auto hide-scrollbar px-2',
             'data-name': 'navigation'
         },
-            menuItems.map(item =>
+            filteredMenuItems.map(item =>
                 React.createElement('button', {
                     key: item.id,
                     onClick: () => onPageChange(item.id),
