@@ -9,9 +9,9 @@ function Header({ title, user, onMenuClick }) {
             className: 'flex items-center gap-4'
         },
             React.createElement('button', {
-                className: 'lg:hidden text-2xl',
+                className: 'mobile-menu-button',
                 onClick: onMenuClick,
-                'data-name': 'menu-button'
+                'data-name': 'mobile-menu-button'
             },
                 React.createElement('i', {
                     className: 'fas fa-bars'

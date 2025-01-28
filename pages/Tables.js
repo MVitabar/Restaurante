@@ -7,7 +7,7 @@ function Tables() {
     const [isOrderModalOpen, setIsOrderModalOpen] = React.useState(false);
     const [isCompletionModalOpen, setIsCompletionModalOpen] = React.useState(false);
     const [isEditing, setIsEditing] = React.useState(false);
-    const [clientType, setClientType] = React.useState('passante'); // 'passante' or 'hotel'
+    const [clientType, setClientType] = React.useState('passante');
     const [availableRooms, setAvailableRooms] = React.useState([]);
     const [selectedRoom, setSelectedRoom] = React.useState(null);
     const { t } = useTranslation();
@@ -30,34 +30,22 @@ function Tables() {
         }
     }, []);
 
-    const getTableOrder = (tableId) => {
-        return orders.find(order => 
-            order.tableId === tableId && order.status === 'pending'
+    const handleTableClick = (table) => {
+        setSelectedTable(table);
+        const currentOrder = orders.find(order => 
+            order.tableId === table.id && order.status === 'pending'
         );
-    };
-
-    const handleStatusChange = async (tableId) => {
-        try {
-            const table = tables.find(t => t.id === tableId);
-            const currentOrder = getTableOrder(tableId);
-            
-            if (currentOrder) {
-                return; // Prevent status change if table has an active order
-            }
-            
-            setSelectedTable(table);
-            setClientType('passante');
-            setSelectedRoom(null);
+        if (currentOrder) {
+            setSelectedOrder(currentOrder);
+            setIsOrderModalOpen(true);
+        } else {
             setIsModalOpen(true);
-        } catch (error) {
-            reportError(error);
         }
     };
 
     const handleUpdateStatus = async (newStatus) => {
         try {
             if (newStatus === 'occupied') {
-                // Create initial order for the table
                 const orderData = {
                     tableId: selectedTable.id,
                     status: 'pending',
@@ -66,7 +54,7 @@ function Tables() {
                     createdAt: new Date().toISOString(),
                     clientType: clientType,
                     roomId: clientType === 'hotel' ? selectedRoom : null,
-                    clientName: clientType === 'passante' ? 'Passante' : `Quarto ${selectedRoom}`
+                    clientName: clientType === 'passante' ? 'Passante' : `Room ${selectedRoom}`
                 };
                 
                 await insert('orders', orderData);
@@ -94,12 +82,6 @@ function Tables() {
         } catch (error) {
             reportError(error);
         }
-    };
-
-    const handleViewOrder = (order) => {
-        setSelectedOrder(order);
-        setIsOrderModalOpen(true);
-        setIsEditing(false);
     };
 
     const handleUpdateOrder = async (orderData) => {
@@ -155,17 +137,12 @@ function Tables() {
         },
             React.createElement('h2', {
                 className: 'text-2xl font-bold'
-            }, t('restaurantTables')),
-            React.createElement(Button, {
-                onClick: () => setIsModalOpen(true),
-                'data-name': 'add-table-button'
-            }, t('addTable'))
+            }, t('restaurantTables'))
         ),
         React.createElement(TableGrid, {
             tables,
             orders,
-            onStatusChange: handleStatusChange,
-            onViewOrder: handleViewOrder
+            onTableClick: handleTableClick
         }),
         React.createElement(Modal, {
             isOpen: isModalOpen,

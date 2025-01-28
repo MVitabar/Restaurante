@@ -11,6 +11,20 @@ function AuthProvider({ children }) {
                     password: 'admin123',
                     role: 'admin',
                     permissions: ['all']
+                },
+                {
+                    id: 2,
+                    username: 'waiter',
+                    password: 'waiter123',
+                    role: 'waiter',
+                    permissions: ['dashboard.view', 'tables.view', 'tables.edit', 'orders.view', 'orders.edit', 'menu.view']
+                },
+                {
+                    id: 3,
+                    username: 'receptionist',
+                    password: 'reception123',
+                    role: 'receptionist',
+                    permissions: ['dashboard.view', 'rooms.view', 'rooms.edit', 'tables.view']
                 }
             ];
 
@@ -54,77 +68,32 @@ function AuthProvider({ children }) {
         return hasPermission(`${module}.edit`);
     };
 
-    const createUser = async (userData) => {
-        try {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const newUser = {
-                id: users.length + 1,
-                ...userData,
-                permissions: userData.permissions || []
-            };
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-            return newUser;
-        } catch (error) {
-            reportError(error);
-            throw error;
-        }
-    };
-
-    const updateUser = async (userId, userData) => {
-        try {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const updatedUsers = users.map(user => 
-                user.id === userId ? { ...user, ...userData } : user
-            );
-            localStorage.setItem('users', JSON.stringify(updatedUsers));
-            
-            if (user && user.id === userId) {
-                const updatedUser = updatedUsers.find(u => u.id === userId);
-                setUser(updatedUser);
-                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-            }
-            
-            return updatedUsers.find(u => u.id === userId);
-        } catch (error) {
-            reportError(error);
-            throw error;
-        }
-    };
-
-    const deleteUser = async (userId) => {
-        try {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const filteredUsers = users.filter(user => user.id !== userId);
-            localStorage.setItem('users', JSON.stringify(filteredUsers));
-        } catch (error) {
-            reportError(error);
-            throw error;
-        }
-    };
-
-    const listUsers = async () => {
-        try {
-            return JSON.parse(localStorage.getItem('users')) || [];
-        } catch (error) {
-            reportError(error);
-            throw error;
-        }
-    };
-
     React.useEffect(() => {
         try {
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            if (users.length === 0) {
-                const defaultAdmin = {
+            const users = JSON.parse(localStorage.getItem('users')) || [
+                {
                     id: 1,
                     username: 'admin',
                     password: 'admin123',
                     role: 'admin',
                     permissions: ['all']
-                };
-                localStorage.setItem('users', JSON.stringify([defaultAdmin]));
-            }
+                },
+                {
+                    id: 2,
+                    username: 'waiter',
+                    password: 'waiter123',
+                    role: 'waiter',
+                    permissions: ['dashboard.view', 'tables.view', 'tables.edit', 'orders.view', 'orders.edit', 'menu.view']
+                },
+                {
+                    id: 3,
+                    username: 'receptionist',
+                    password: 'reception123',
+                    role: 'receptionist',
+                    permissions: ['dashboard.view', 'rooms.view', 'rooms.edit', 'tables.view']
+                }
+            ];
+            localStorage.setItem('users', JSON.stringify(users));
 
             const storedUser = localStorage.getItem('currentUser');
             if (storedUser) {
@@ -145,11 +114,7 @@ function AuthProvider({ children }) {
             hasPermission,
             hasViewPermission,
             hasEditPermission,
-            loading,
-            createUser,
-            updateUser,
-            deleteUser,
-            listUsers
+            loading
         }
     }, children);
 }

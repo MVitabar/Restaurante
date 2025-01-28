@@ -1,6 +1,7 @@
 function OrderList({ orders, onViewDetails }) {
     const columns = [
         { key: 'id', label: 'Order ID' },
+        { key: 'createdBy', label: 'Created By' },
         { key: 'tableInfo', label: 'Table' },
         { key: 'roomInfo', label: 'Room' },
         { key: 'total', label: 'Total' },
@@ -10,7 +11,8 @@ function OrderList({ orders, onViewDetails }) {
 
     const formattedOrders = orders.map(order => ({
         ...order,
-        tableInfo: order.tableId ? `Table ${order.tableId}` : '-',
+        createdBy: order.createdBy?.username || 'Unknown',
+        tableInfo: order.tableId ? `Mesa ${order.tableId}` : '-',
         roomInfo: order.roomId ? `Room ${order.roomId}` : '-',
         total: `$${order.total.toFixed(2)}`,
         status: order.status.charAt(0).toUpperCase() + order.status.slice(1),

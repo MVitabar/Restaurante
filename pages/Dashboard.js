@@ -15,14 +15,12 @@ function Dashboard() {
                     query('orders')
                 ]);
 
-                // Calculate today's revenue
                 const today = new Date().toISOString().split('T')[0];
                 const todayOrders = orders.filter(order => 
                     order.createdAt.startsWith(today)
                 );
                 const dailyRevenue = todayOrders.reduce((sum, order) => sum + order.total, 0);
 
-                // Calculate weekly revenue
                 const weekAgo = new Date();
                 weekAgo.setDate(weekAgo.getDate() - 7);
                 const weeklyOrders = orders.filter(order => 
@@ -48,53 +46,33 @@ function Dashboard() {
                         weekly: weeklyRevenue
                     }
                 });
-
-                // Save stats to local storage
-                localStorage.setItem('dashboardStats', JSON.stringify({
-                    timestamp: new Date().toISOString(),
-                    stats: {
-                        tables: {
-                            total: tables.length,
-                            occupied: tables.filter(t => t.status === 'occupied').length
-                        },
-                        rooms: {
-                            total: rooms.length,
-                            occupied: rooms.filter(r => r.status === 'occupied').length
-                        },
-                        orders: {
-                            total: orders.length,
-                            pending: orders.filter(o => o.status === 'pending').length
-                        },
-                        revenue: {
-                            daily: dailyRevenue,
-                            weekly: weeklyRevenue
-                        }
-                    }
-                }));
             };
 
-            // Try to load from local storage first
-            const storedStats = localStorage.getItem('dashboardStats');
-            if (storedStats) {
-                const { timestamp, stats: savedStats } = JSON.parse(storedStats);
-                const lastUpdate = new Date(timestamp);
-                const now = new Date();
-                // If stats are less than 5 minutes old, use them
-                if (now.getTime() - lastUpdate.getTime() < 5 * 60 * 1000) {
-                    setStats(savedStats);
-                    return;
-                }
-            }
-
             fetchStats();
+            // Set up interval for real-time updates
+            const interval = setInterval(fetchStats, 5000);
+            return () => clearInterval(interval);
         } catch (error) {
             reportError(error);
         }
     }, []);
 
-    const StatCard = ({ title, value, subValue, icon }) => {
+    const StatCard = ({ title, value, subValue, icon, section }) => {
         return React.createElement('div', {
-            className: 'card',
+            className: 'card cursor-pointer hover:bg-white/10 transition-colors',
+            onClick: () => {
+                // Navigate to section
+                const mainContent = document.querySelector('.main-content');
+                const sectionElement = document.querySelector(`[data-name="${section}-page"]`);
+                if (mainContent && sectionElement) {
+                    mainContent.scrollTo({
+                        top: sectionElement.offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+                // Update URL hash
+                window.location.hash = `#${section}`;
+            },
             'data-name': `stat-card-${title.toLowerCase()}`
         },
             React.createElement('div', {
@@ -119,8 +97,8 @@ function Dashboard() {
     };
 
     return React.createElement('div', {
-        className: 'space-y-6',
-        'data-name': 'dashboard'
+        className: 'space-y-6 p-4',
+        'data-name': 'dashboard-page'
     },
         React.createElement('div', {
             className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'
@@ -129,25 +107,29 @@ function Dashboard() {
                 title: 'Tables',
                 value: `${stats.tables.occupied}/${stats.tables.total}`,
                 subValue: 'Currently Occupied',
-                icon: 'fas fa-chair'
+                icon: 'fas fa-chair',
+                section: 'tables'
             }),
             React.createElement(StatCard, {
                 title: 'Rooms',
                 value: `${stats.rooms.occupied}/${stats.rooms.total}`,
                 subValue: 'Currently Occupied',
-                icon: 'fas fa-bed'
+                icon: 'fas fa-bed',
+                section: 'rooms'
             }),
             React.createElement(StatCard, {
                 title: 'Orders',
                 value: stats.orders.pending,
                 subValue: 'Pending Orders',
-                icon: 'fas fa-receipt'
+                icon: 'fas fa-receipt',
+                section: 'orders'
             }),
             React.createElement(StatCard, {
                 title: 'Today\'s Revenue',
                 value: `$${stats.revenue.daily.toFixed(2)}`,
                 subValue: `$${stats.revenue.weekly.toFixed(2)} This Week`,
-                icon: 'fas fa-dollar-sign'
+                icon: 'fas fa-dollar-sign',
+                section: 'reports'
             })
         )
     );

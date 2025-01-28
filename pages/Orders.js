@@ -5,6 +5,7 @@ function Orders() {
     const [isNewOrderModalOpen, setIsNewOrderModalOpen] = React.useState(false);
     const [orderDetails, setOrderDetails] = React.useState(null);
     const [isEditing, setIsEditing] = React.useState(false);
+    const { user } = useAuth();
 
     React.useEffect(() => {
         try {
@@ -20,7 +21,13 @@ function Orders() {
 
     const handleCreateOrder = async (orderData) => {
         try {
-            const newOrder = await insert('orders', orderData);
+            const newOrder = await insert('orders', {
+                ...orderData,
+                createdBy: {
+                    id: user.id,
+                    username: user.username
+                }
+            });
             setOrders([...orders, newOrder]);
             setIsNewOrderModalOpen(false);
         } catch (error) {
@@ -121,7 +128,11 @@ function Orders() {
                             variant: 'secondary',
                             className: 'mr-2',
                             'data-name': 'edit-order-button'
-                        }, 'Edit Order')
+                        }, 'Edit Order'),
+                        orderDetails.status === 'pending' && React.createElement(Button, {
+                            onClick: () => handleCompleteOrder(orderDetails.id),
+                            'data-name': 'complete-order-button'
+                        }, 'Complete Order')
                     ),
                     React.createElement('div', {
                         className: 'grid grid-cols-2 gap-4'
@@ -135,6 +146,12 @@ function Orders() {
                         React.createElement('div', null,
                             React.createElement('p', {
                                 className: 'font-semibold'
+                            }, 'Created By:'),
+                            React.createElement('p', null, orderDetails.createdBy?.username || 'Unknown')
+                        ),
+                        React.createElement('div', null,
+                            React.createElement('p', {
+                                className: 'font-semibold'
                             }, 'Status:'),
                             React.createElement('p', null, orderDetails.status)
                         ),
@@ -142,7 +159,7 @@ function Orders() {
                             React.createElement('p', {
                                 className: 'font-semibold'
                             }, 'Table:'),
-                            React.createElement('p', null, `Table ${orderDetails.table.id} (${orderDetails.table.seats} seats)`)
+                            React.createElement('p', null, `Table ${orderDetails.table.id}`)
                         ),
                         orderDetails.room && React.createElement('div', null,
                             React.createElement('p', {
@@ -176,12 +193,7 @@ function Orders() {
                     },
                         'Total:',
                         `$${orderDetails.total.toFixed(2)}`
-                    ),
-                    orderDetails.status === 'pending' && React.createElement(Button, {
-                        onClick: () => handleCompleteOrder(orderDetails.id),
-                        className: 'w-full mt-4',
-                        'data-name': 'complete-order-button'
-                    }, 'Complete Order')
+                    )
                 )
             )
         ),

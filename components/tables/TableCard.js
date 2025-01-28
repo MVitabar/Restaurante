@@ -1,4 +1,4 @@
-function TableCard({ table, onStatusChange, currentOrder, onViewOrder }) {
+function TableCard({ table, onStatusChange, currentOrder, onViewOrder, onClick }) {
     const statusColors = {
         available: 'bg-green-500',
         occupied: 'bg-red-500',
@@ -6,71 +6,37 @@ function TableCard({ table, onStatusChange, currentOrder, onViewOrder }) {
     };
 
     return React.createElement('div', {
-        className: 'card',
+        className: 'card cursor-pointer hover:bg-white/5 transition-colors',
+        onClick: () => onClick(table),
         'data-name': 'table-card'
     },
         React.createElement('div', {
-            className: 'flex justify-between items-start mb-4'
+            className: 'flex justify-between items-start'
         },
-            React.createElement('div', null,
-                React.createElement('h3', {
-                    className: 'text-xl font-semibold mb-1',
+            React.createElement('div', {
+                className: 'flex items-center gap-2'
+            },
+                React.createElement('span', {
+                    className: 'text-xl font-semibold',
                     'data-name': 'table-number'
-                }, `Table ${table.id}`),
-                React.createElement('span', {
-                    className: 'text-sm opacity-75',
-                    'data-name': 'table-seats'
-                }, `${table.seats} seats`)
-            ),
-            React.createElement('div', {
-                className: `w-3 h-3 rounded-full ${statusColors[table.status]}`,
-                'data-name': 'table-status-indicator'
-            })
-        ),
-        React.createElement('div', {
-            className: 'space-y-2'
-        },
-            React.createElement('div', {
-                className: 'flex justify-between'
-            },
-                React.createElement('span', null, 'Status:'),
-                React.createElement('span', {
-                    className: 'font-semibold',
-                    'data-name': 'table-status'
-                }, table.status)
-            ),
-            currentOrder && React.createElement('div', {
-                className: 'mt-4 p-3 bg-white/5 rounded'
-            },
+                }, `Mesa ${table.id}`),
                 React.createElement('div', {
-                    className: 'flex justify-between mb-2'
-                },
-                    React.createElement('span', {
-                        className: 'font-semibold'
-                    }, 'Current Order:'),
-                    React.createElement('span', null, `$${currentOrder.total.toFixed(2)}`)
-                ),
-                React.createElement('div', {
-                    className: 'text-sm opacity-75'
-                },
-                    `${currentOrder.items.length} items`
-                ),
-                React.createElement(Button, {
-                    onClick: () => onViewOrder(currentOrder),
-                    variant: 'secondary',
-                    className: 'w-full mt-2',
-                    'data-name': 'view-order-button'
-                }, 'View Order')
-            )
+                    className: `w-3 h-3 rounded-full ${statusColors[table.status]}`,
+                    'data-name': 'table-status-indicator'
+                })
+            ),
+            React.createElement('span', {
+                className: 'text-sm opacity-75',
+                'data-name': 'table-seats'
+            }, `${table.seats} lugares`)
         ),
-        !currentOrder && React.createElement('div', {
-            className: 'mt-4'
+        currentOrder && React.createElement('div', {
+            className: 'mt-2 text-sm opacity-75'
         },
-            React.createElement(Button, {
-                onClick: () => onStatusChange(table.id),
-                className: 'w-full',
-                'data-name': 'change-status-button'
-            }, 'Change Status')
+            React.createElement('i', {
+                className: 'fas fa-receipt mr-2'
+            }),
+            `Pedido: $${currentOrder.total.toFixed(2)}`
         )
     );
 }

@@ -1,4 +1,4 @@
-function TableGrid({ tables, onStatusChange, orders, onViewOrder }) {
+function TableGrid({ tables, onStatusChange, orders, onViewOrder, onTableClick }) {
     const getTableOrder = (tableId) => {
         return orders.find(order => 
             order.tableId === tableId && order.status === 'pending'
@@ -6,7 +6,7 @@ function TableGrid({ tables, onStatusChange, orders, onViewOrder }) {
     };
 
     return React.createElement('div', {
-        className: 'grid-container',
+        className: 'table-grid',
         'data-name': 'table-grid'
     },
         tables.map(table =>
@@ -15,7 +15,8 @@ function TableGrid({ tables, onStatusChange, orders, onViewOrder }) {
                 table,
                 onStatusChange,
                 currentOrder: getTableOrder(table.id),
-                onViewOrder
+                onViewOrder,
+                onClick: onTableClick
             })
         )
     );
