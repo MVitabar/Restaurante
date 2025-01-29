@@ -73,11 +73,16 @@ function Sidebar({ currentPage, onPageChange }) {
                     key: item.id,
                     onClick: () => onPageChange(item.id),
                     className: `w-full text-left p-3 mb-2 rounded flex items-center gap-3
-                        ${currentPage === item.id ? 'gradient-primary' : 'hover:bg-white/10'}`,
+                        ${currentPage === item.id ? 'gradient-primary' : 'hover:bg-white/10'}
+                        transition-colors duration-200`,
                     'data-name': `nav-item-${item.id}`
                 },
-                    React.createElement('i', { className: item.icon }),
-                    item.label
+                    React.createElement('i', { 
+                        className: `${item.icon} w-5 text-center`
+                    }),
+                    React.createElement('span', {
+                        className: 'flex-1 truncate'
+                    }, item.label)
                 )
             )
         )

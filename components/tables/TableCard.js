@@ -6,37 +6,50 @@ function TableCard({ table, onStatusChange, currentOrder, onViewOrder, onClick }
     };
 
     return React.createElement('div', {
-        className: 'card cursor-pointer hover:bg-white/5 transition-colors',
+        className: 'card cursor-pointer hover:bg-white/5 transition-colors h-full flex flex-col justify-between',
         onClick: () => onClick(table),
         'data-name': 'table-card'
     },
         React.createElement('div', {
-            className: 'flex justify-between items-start'
+            className: 'flex flex-col gap-2'
         },
             React.createElement('div', {
-                className: 'flex items-center gap-2'
+                className: 'flex items-center justify-between'
             },
                 React.createElement('span', {
                     className: 'text-xl font-semibold',
                     'data-name': 'table-number'
-                }, `Mesa ${table.id}`),
+                }, `Mesa ${table.number}`),
                 React.createElement('div', {
                     className: `w-3 h-3 rounded-full ${statusColors[table.status]}`,
                     'data-name': 'table-status-indicator'
                 })
             ),
-            React.createElement('span', {
-                className: 'text-sm opacity-75',
-                'data-name': 'table-seats'
-            }, `${table.seats} lugares`)
+            React.createElement('div', {
+                className: 'flex items-center gap-2'
+            },
+                React.createElement('i', {
+                    className: 'fas fa-chair text-sm'
+                }),
+                React.createElement('span', {
+                    className: 'text-sm opacity-75',
+                    'data-name': 'table-seats'
+                }, `${table.seats} lugares`)
+            )
         ),
         currentOrder && React.createElement('div', {
-            className: 'mt-2 text-sm opacity-75'
+            className: 'mt-3 pt-3 border-t border-white/10 text-sm'
         },
-            React.createElement('i', {
-                className: 'fas fa-receipt mr-2'
-            }),
-            `Pedido: $${currentOrder.total.toFixed(2)}`
+            React.createElement('div', {
+                className: 'flex items-center gap-2'
+            },
+                React.createElement('i', {
+                    className: 'fas fa-receipt'
+                }),
+                React.createElement('span', null,
+                    `$${currentOrder.total.toFixed(2)}`
+                )
+            )
         )
     );
 }

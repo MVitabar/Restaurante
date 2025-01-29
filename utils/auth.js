@@ -4,36 +4,23 @@ function AuthProvider({ children }) {
 
     const login = async (username, password) => {
         try {
-            const users = JSON.parse(localStorage.getItem('users')) || [
-                {
-                    id: 1,
-                    username: 'admin',
-                    password: 'admin123',
-                    role: 'admin',
-                    permissions: ['all']
-                },
-                {
-                    id: 2,
-                    username: 'waiter',
-                    password: 'waiter123',
-                    role: 'waiter',
-                    permissions: ['dashboard.view', 'tables.view', 'tables.edit', 'orders.view', 'orders.edit', 'menu.view']
-                },
-                {
-                    id: 3,
-                    username: 'receptionist',
-                    password: 'reception123',
-                    role: 'receptionist',
-                    permissions: ['dashboard.view', 'rooms.view', 'rooms.edit', 'tables.view']
-                }
-            ];
+            const usersSnapshot = await db.collection('users')
+                .where('username', '==', username)
+                .where('password', '==', password)
+                .get();
 
-            const foundUser = users.find(u => u.username === username && u.password === password);
-            if (!foundUser) throw new Error('Invalid credentials');
+            if (usersSnapshot.empty) {
+                throw new Error('Invalid credentials');
+            }
 
-            setUser(foundUser);
-            localStorage.setItem('currentUser', JSON.stringify(foundUser));
-            return foundUser;
+            const userData = {
+                id: usersSnapshot.docs[0].id,
+                ...usersSnapshot.docs[0].data()
+            };
+
+            setUser(userData);
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            return userData;
         } catch (error) {
             reportError(error);
             throw error;
@@ -70,31 +57,6 @@ function AuthProvider({ children }) {
 
     React.useEffect(() => {
         try {
-            const users = JSON.parse(localStorage.getItem('users')) || [
-                {
-                    id: 1,
-                    username: 'admin',
-                    password: 'admin123',
-                    role: 'admin',
-                    permissions: ['all']
-                },
-                {
-                    id: 2,
-                    username: 'waiter',
-                    password: 'waiter123',
-                    role: 'waiter',
-                    permissions: ['dashboard.view', 'tables.view', 'tables.edit', 'orders.view', 'orders.edit', 'menu.view']
-                },
-                {
-                    id: 3,
-                    username: 'receptionist',
-                    password: 'reception123',
-                    role: 'receptionist',
-                    permissions: ['dashboard.view', 'rooms.view', 'rooms.edit', 'tables.view']
-                }
-            ];
-            localStorage.setItem('users', JSON.stringify(users));
-
             const storedUser = localStorage.getItem('currentUser');
             if (storedUser) {
                 setUser(JSON.parse(storedUser));

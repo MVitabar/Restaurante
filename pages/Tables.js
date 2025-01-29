@@ -15,21 +15,33 @@ function Tables() {
     React.useEffect(() => {
         try {
             const fetchData = async () => {
-                const [tablesData, ordersData, roomsData] = await Promise.all([
-                    query('tables'),
-                    query('orders'),
-                    query('rooms')
-                ]);
-                setTables(tablesData);
-                setOrders(ordersData);
+                // Subscribe to real-time updates for tables
+                const unsubscribeTables = subscribeToCollection('tables', (updatedTables) => {
+                    setTables(updatedTables.sort((a, b) => a.number - b.number));
+                });
+
+                // Subscribe to real-time updates for orders
+                const unsubscribeOrders = subscribeToCollection('orders', (updatedOrders) => {
+                    setOrders(updatedOrders);
+                });
+
+                // Fetch rooms once
+                const roomsData = await query('rooms');
                 setAvailableRooms(roomsData.filter(room => room.status === 'occupied'));
+
+                return () => {
+                    unsubscribeTables();
+                    unsubscribeOrders();
+                };
             };
+
             fetchData();
         } catch (error) {
             reportError(error);
         }
     }, []);
 
+    // Rest of the Tables component code remains the same
     const handleTableClick = (table) => {
         setSelectedTable(table);
         const currentOrder = orders.find(order => 
@@ -133,7 +145,7 @@ function Tables() {
         'data-name': 'tables-page'
     },
         React.createElement('div', {
-            className: 'flex justify-between items-center'
+            className: 'flex justify-between items-center px-4 py-2'
         },
             React.createElement('h2', {
                 className: 'text-2xl font-bold'

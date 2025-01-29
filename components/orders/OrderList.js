@@ -12,7 +12,7 @@ function OrderList({ orders, onViewDetails }) {
     const formattedOrders = orders.map(order => ({
         ...order,
         createdBy: order.createdBy?.username || 'Unknown',
-        tableInfo: order.tableId ? `Mesa ${order.tableId}` : '-',
+        tableInfo: order.tableId ? `Mesa ${order.number}` : '-',
         roomInfo: order.roomId ? `Room ${order.roomId}` : '-',
         total: `$${order.total.toFixed(2)}`,
         status: order.status.charAt(0).toUpperCase() + order.status.slice(1),

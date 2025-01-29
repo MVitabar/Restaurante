@@ -16,6 +16,9 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="styles/main.css" rel="stylesheet">
     <link href="styles/components.css" rel="stylesheet">
@@ -23,6 +26,7 @@
 </head>
 <body>
     <div id="root"></div>
+    <script type="text/babel" src="utils/firebase.js"></script>
     <script type="text/babel" src="utils/auth.js"></script>
     <script type="text/babel" src="utils/database.js"></script>
     <script type="text/babel" src="utils/translations.js"></script>
@@ -51,5 +55,13 @@
     <script type="text/babel" src="pages/Reports.js"></script>
     <script type="text/babel" src="pages/Settings.js"></script>
     <script type="text/babel" src="app.js"></script>
+    <script>
+        // Initialize database before rendering the app
+        initializeDatabaseAndGetData().then(() => {
+            console.log('Database initialized successfully');
+        }).catch(error => {
+            console.error('Error initializing database:', error);
+        });
+    </script>
 </body>
 </html>

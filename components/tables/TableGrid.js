@@ -5,11 +5,14 @@ function TableGrid({ tables, onStatusChange, orders, onViewOrder, onTableClick }
         );
     };
 
+    // Sort tables by number
+    const sortedTables = [...tables].sort((a, b) => a.number - b.number);
+
     return React.createElement('div', {
-        className: 'table-grid',
+        className: 'grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4',
         'data-name': 'table-grid'
     },
-        tables.map(table =>
+        sortedTables.map(table =>
             React.createElement(TableCard, {
                 key: table.id,
                 table,

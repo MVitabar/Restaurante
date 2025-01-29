@@ -39,11 +39,5 @@ function Router() {
     }, React.createElement(CurrentPage, null));
 }
 
-// Initialize database and app
-initializeDatabase().then(() => {
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(React.createElement(App));
-}).catch(error => {
-    reportError(error);
-    console.error('Failed to initialize database:', error);
-});
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
